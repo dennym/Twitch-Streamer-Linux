@@ -1,20 +1,20 @@
-#! /bin/bash 
+#! /bin/bash
 
 # Copyright (c) 2013-2014, Giovanni Dante Grazioli (deroad)
 
 # ================================================ OPTIONS =====================================================
 # Add the FFMPEG ABSOLUTE PATH "/path/to/ffmpeg"
-FFMPEG_PATH="ffmpeg"
+FFMPEG_PATH="/usr/bin/ffmpeg"
 
 # Streaming Options
-OUTRES="1280x720"     # Twitch Output Resolution
+OUTRES="1920x1080"     # Twitch Output Resolution
 FPS="24"              # Frame per Seconds (Suggested 24, 25, 30 or 60)
 THREADS="4"           # Change this if you have a good CPU (Suggested 4 threads, Max 6 threads)
 QUALITY="ultrafast"   # ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo
-CBR="1000k"           # Constant bitrate (CBR) Increase this to get a better pixel quality (1000k - 3000k for twitch)
+CBR="3000k"           # Constant bitrate (CBR) Increase this to get a better pixel quality (1000k - 3000k for twitch)
 
 # Webcam Options
-WEBCAM="/dev/video1" # WebCam device
+WEBCAM="/dev/video0" # WebCam device
 WEBCAM_WH="320:240"  # WebCam Width end Height
 WEBCAM_XY=""         # WebCam Position (in pixel) example: "10:10", if "" (empty) then it will set the standard position
 
@@ -49,7 +49,7 @@ KEY_FRAME="2"
 # The following values are changed automatically, so do not change them
 TOPXY="0,0"          # Position of the Window (You don't need to change this)
 INRES="0x0"          # Game Resolution (You don't need to change this)
-LOGLEVEL_ARG=""      # LogLevel, for security purpose (You don't need to change this) 
+LOGLEVEL_ARG=""      # LogLevel, for security purpose (You don't need to change this)
 SCREEN_SETUP=0       # Do not change this. it's used for the args.
 STREAM_SAVE=0        # Do not change this. it's used for the args.
 # ================================================= CHECKS =====================================================
@@ -173,7 +173,7 @@ streamWebcam(){
                 WEBCAM_XY="$(($(echo $INRES | awk -F"x" '{ print $1 }') - $(echo $WEBCAM_WH | awk -F":" '{ print $1 }') - 10)):10"
                 echo "There isn't a WEBCAM_XY in the options, i'll generate the standard one ($WEBCAM_XY)"
         fi
-        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -vcodec libx264 -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)" -g $GOP -keyint_min $GOPMIN -b $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film  -acodec libmp3lame -threads $THREADS -vf "movie=$WEBCAM:f=video4linux2, scale=$WEBCAM_WH , setpts=PTS-STARTPTS [WebCam]; [in] setpts=PTS-STARTPTS [Screen]; [Screen][WebCam] overlay=$WEBCAM_XY [out]" -strict normal -bufsize $CBR $LOGLEVEL_ARG "rtmp://$SERVER.twitch.tv/app/$STREAM_KEY"
+        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -async 0 -vcodec libx264 -g $GOP -keyint_min $GOPMIN -b $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film  -acodec libmp3lame -threads $THREADS -vf "movie=$WEBCAM:f=video4linux2, scale=$WEBCAM_WH , setpts=PTS-STARTPTS [WebCam]; [in] setpts=PTS-STARTPTS [Screen]; [Screen][WebCam] overlay=$WEBCAM_XY [out]" -strict normal -bufsize $CBR $LOGLEVEL_ARG "rtmp://$SERVER.twitch.tv/app/$STREAM_KEY" -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)"
         APP_RETURN=$?
 }
 
@@ -181,7 +181,7 @@ streamNoWebcam(){
         echo "Webcam NOT found!! ("$WEBCAM")"
         echo "You should be online! Check on http://twitch.tv/ (Press CTRL+C to stop)"
         echo " "
-        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -vcodec libx264 -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)" -g $GOP -keyint_min $GOPMIN  -b:v $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film -acodec libmp3lame -threads $THREADS -strict normal -bufsize $CBR $LOGLEVEL_ARG "rtmp://$SERVER.twitch.tv/app/$STREAM_KEY"
+        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -async 0 -vcodec libx264 -g $GOP -keyint_min $GOPMIN  -b:v $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film -acodec libmp3lame -threads $THREADS -strict normal -bufsize $CBR $LOGLEVEL_ARG "rtmp://$SERVER.twitch.tv/app/$STREAM_KEY" -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)"
         APP_RETURN=$?
 }
 
@@ -195,7 +195,7 @@ saveStreamWebcam(){
                 WEBCAM_XY="$(($(echo $INRES | awk -F"x" '{ print $1 }') - $(echo $WEBCAM_WH | awk -F":" '{ print $1 }') - 10)):10"
                 echo "There isn't a WEBCAM_XY in the options, i'll generate the standard one ($WEBCAM_XY)"
         fi
-        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -vcodec libx264 -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)" -g $GOP -keyint_min $GOPMIN -b $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film  -acodec libmp3lame -threads $THREADS -vf "movie=$WEBCAM:f=video4linux2, scale=$WEBCAM_WH , setpts=PTS-STARTPTS [WebCam]; [in] setpts=PTS-STARTPTS [Screen]; [Screen][WebCam] overlay=$WEBCAM_XY [out]" -strict normal -bufsize $CBR $LOGLEVEL_ARG $FILE_VIDEO
+        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -vcodec libx264 -g $GOP -keyint_min $GOPMIN -b $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film  -acodec libmp3lame -threads $THREADS -vf "movie=$WEBCAM:f=video4linux2, scale=$WEBCAM_WH , setpts=PTS-STARTPTS [WebCam]; [in] setpts=PTS-STARTPTS [Screen]; [Screen][WebCam] overlay=$WEBCAM_XY [out]" -strict normal -bufsize $CBR $LOGLEVEL_ARG $FILE_VIDEO -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)"
         APP_RETURN=$?
 }
 
@@ -203,7 +203,7 @@ saveStreamNoWebcam(){
         echo "Webcam NOT found!! ("$WEBCAM")"
         echo "You should be online! Check on http://twitch.tv/ (Press CTRL+C to stop)"
         echo " "
-        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -vcodec libx264 -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)" -g $GOP -keyint_min $GOPMIN  -b:v $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film -acodec libmp3lame -threads $THREADS -strict normal -bufsize $CBR $LOGLEVEL_ARG $FILE_VIDEO
+        $FFMPEG_PATH -f x11grab -s $INRES -framerate "$FPS" -i :0.0+$TOPXY -f alsa -i pulse -f flv -ac 2 -ar $AUDIO_RATE -async 0 -vcodec libx264 -g $GOP -keyint_min $GOPMIN  -b:v $CBR -minrate $CBR -maxrate $CBR -pix_fmt yuv420p -s $OUTRES -preset $QUALITY -tune film -acodec libmp3lame -threads $THREADS -strict normal -bufsize $CBR $LOGLEVEL_ARG $FILE_VIDEO -force_key_frames "expr:gte(t,n_forced*$KEY_FRAME)"
         APP_RETURN=$?
 }
 
@@ -229,8 +229,8 @@ doDefaults(){
 loadModule(){
 	MODULE_LOAD1=$(pactl load-module module-null-sink sink_name=GameAudio sink_properties=device.description="GameAudio") # For Game Audio
 	MODULE_LOAD2=$(pactl load-module module-null-sink sink_name=MicAudio sink_properties=device.description="MicAudio") # For Mic Audio
-	pactl load-module module-device-manager >> /dev/null  
-	pactl load-module module-loopback sink=GameAudio >> /dev/null      
+	pactl load-module module-device-manager >> /dev/null
+	pactl load-module module-loopback sink=GameAudio >> /dev/null
 	pactl load-module module-loopback sink=MicAudio >> /dev/null
 }
 

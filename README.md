@@ -64,8 +64,6 @@ How to
 * You can set the Audio settings (select the Null Output on pavucontrol)
 * To stop the stream, click on the terminal and press CTRL+C
 * **BE CAREFUL ON SHOWING THE TERMINAL SINCE FFMPEG PRINTS ON THE TERMINAL THE KEY**
-* For suggestion or bugfix, please write to me on github. (I love suggestions! <3 )
-* Please do NOT write for support on my BLOG. post bug reports on http://github.com/wargio/Twitch-Streamer-Linux !
 
 Additional How to
 -----------------
@@ -84,13 +82,10 @@ Additional How to
 
 Setup Audio (with pavucontrol):
 -------------------------------
-* My microphone is `Turtle Beach PLa Headset` and my game is `Syobon Action (Cat Mario)`
 * Open the game you want to stream and exec the script
 * Now open `pavucontrol`
 * Under `Playback`:
-![Screenshot from pavucontrol](https://raw.github.com/wargio/Twitch-Streamer-Linux/master/Screenshots/Twitch_Audio00.png)
 * Under `Recording`:
-![Screenshot from pavucontrol](https://raw.github.com/wargio/Twitch-Streamer-Linux/master/Screenshots/Twitch_Audio01.png)
 * Done (For `ffmpeg/avconv` setting,  `Monitor of MicAudio` or `Monitor of GameAudio`. it's the same).
 * If you don't see any `Monitor of MicAudio` or `Monitor of GameAudio`, but only `Monitor of null output`, use it, don't worry.
 
@@ -140,11 +135,4 @@ FAQ
 
 * Why the avconv script is deprecated?
 	It's deprecated due libav drama. Please use ffmpeg.
-
-
-Screenshot:
------------
-
-![Screenshot from twitch.tv](https://raw.github.com/wargio/Twitch-Streamer-Linux/master/Screenshots/Screenshot.png)
-
 
